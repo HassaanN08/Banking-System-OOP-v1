@@ -4,11 +4,35 @@
 
 using namespace std;
 
+double roundToTwo(double num) {
+    double val = (int)(num * 100 + 0.5);
+    return (float)val / 100;
+}
+
+void showMenu() {
+    cout << '\n' << '\n' << "1. Create Savings Account" << '\n' << "2. Create Current Account" << '\n'<< "3. Deposit Money" << '\n'<< "4. Withdraw Money" << '\n'<< "5. Show Account Details" << '\n'<< "6. Show All Accounts" << '\n'<< "7. Exit" << '\n' << '\n';
+}
+
+int getChoice() {
+    int choice;
+    cout << "Enter your choice: ";
+    cin >> choice;
+
+    while (choice < 1 || choice > 7) {
+        cout << "Invalid choice. Pick a number between 1 and 7: ";
+        cin.clear();
+        cin.ignore(10000, '\n');
+        cin >> choice;
+    }
+
+    return choice;
+}
+
 class BankAccount {
     private:
         string holderName;
-        int transactions;
     protected:
+        int transactions;
         double balance;
         string accountType;
     public:
@@ -16,16 +40,17 @@ class BankAccount {
             transactions = 0;
         }
 
-        void setName(string name) {
-            holderName = name;
-        }
-
-        void withdrawMoney(double amount) {
-            balance -= amount;
-            transactions++;
-        }
-
         void depositMoney(double amount) {
+            while (amount <= 0) {
+                cout << "Invalid choice. Enter an amount greter than 0, or enter -1 to go back to the menu: ";
+                cin.clear();
+                cin.ignore(10000, '\n');
+                cin >> amount;
+                if (amount == -1) {
+                    return;
+                }
+            }
+
             balance += amount;
             transactions++;
         }
@@ -58,6 +83,26 @@ class SavingsAccount : public BankAccount {
         double getInterestRate() {
             return interestRate;
         }
+
+        void withdrawMoneyFromSavings(double amount) {
+
+            while (amount <= 0 || amount > balance) {
+                if (amount <= 0) {
+                    cout << "Invalid choice. Enter an amount greater 0, or enter -1 to go back to the menu: ";
+                } else {
+                    cout << "Amount exceeded your balance. Enter an amount within your balance, or enter -1 to go back to the menu: ";
+                }
+                cin.clear();
+                cin.ignore(10000, '\n');
+                cin >> amount;
+                if (amount == -1) {
+                    return;
+                }
+            }
+
+            balance -= amount;
+            transactions++;
+        }
 };
 
 class CurrentAccount : public BankAccount {
@@ -72,34 +117,22 @@ class CurrentAccount : public BankAccount {
             return overdraftLimit;
         }
 
-        double getMaxWithdrawableAmount() {
-            return overdraftLimit + balance;
+        void withdrawMoneyFromCurrent(int amount) {
+            while (amount <= 0 || amount > balance + overdraftLimit) {
+                if (amount <= 0) {
+                    cout << "Invalid choice. Enter an amount greater 0, or enter -1 to go back to the menu: ";
+                } else {
+                    cout << "Amount exceeded your maximum withdrawable amount. Enter an amount within it, or enter -1 to go back to the menu: ";
+                }
+                cin.clear();
+                cin.ignore(10000, '\n');
+                cin >> amount;
+                if (amount == -1) {
+                    return;
+                }
+            }
         }
 };
-
-double round(double num) {
-    double val = (int)(num * 100 + 0.5);
-    return (float)val / 100;
-}
-
-void showMenu() {
-    cout << '\n' << '\n' << "1. Create Savings Account" << '\n' << "2. Create Current Account" << '\n'<< "3. Deposit Money" << '\n'<< "4. Withdraw Money" << '\n'<< "5. Show Account Details" << '\n'<< "6. Show All Accounts" << '\n'<< "7. Exit" << '\n' << '\n';
-}
-
-int getChoice() {
-    int choice;
-    cout << "Enter your choice: ";
-    cin >> choice;
-
-    while (choice < 1 || choice > 7) {
-        cout << "Invalid choice. Pick a number between 1 and 7: ";
-        cin.clear();
-        cin.ignore(10000, '\n');
-        cin >> choice;
-    }
-
-    return choice;
-}
 
 void traverseVector(int &accChoice, int &index, vector<SavingsAccount> &savingsAccount, vector<CurrentAccount> &currentAccount) {
     for (int i = 0; i < savingsAccount.size(); i++) {
@@ -192,7 +225,7 @@ int main() {
             cout << "Current account created successfully." << '\n' << '\n';
         } else if (choice == 3) {
             int accChoice;
-            int index = 1;
+            int index = 0;
             double amt;
 
             traverseVector(accChoice, index, savingsAccount, currentAccount);
@@ -205,21 +238,6 @@ int main() {
 
             cout << "Enter deposit ammount: $";
             cin >> amt;
-
-            while (amt <= 0) {
-                cout << "Invalid choice. Enter an amount greter than 0, or enter -1 to go back to the menu: ";
-                cin.clear();
-                cin.ignore(10000, '\n');
-                cin >> amt;
-                if (amt == -1) {
-                    break;
-                }
-            }
-            if (amt == -1) {
-                showMenu();
-                choice = getChoice();
-                continue;
-            }
             
             if (accChoice <= savingsAccount.size()) {
                 savingsAccount[accChoice - 1].depositMoney(amt);
@@ -228,7 +246,7 @@ int main() {
             }
         } else if (choice == 4) {
             int accChoice;
-            int index = 1;
+            int index = 0;
             double amt;
 
             traverseVector(accChoice, index, savingsAccount, currentAccount);
@@ -243,47 +261,9 @@ int main() {
             cin >> amt;
             
             if (accChoice <= savingsAccount.size()) {
-                while (amt <= 0 || amt > savingsAccount[accChoice - 1].getBalance()) {
-                    if (amt <= 0) {
-                        cout << "Invalid choice. Enter an amount greater 0, or enter -1 to go back to the menu: ";
-                    } else {
-                        cout << "Amount exceeded your balance. Enter an amount within your balance, or enter -1 to go back to the menu: ";
-                    }
-                    cin.clear();
-                    cin.ignore(10000, '\n');
-                    cin >> amt;
-                    if (amt == -1) {
-                        break;
-                    }
-                }
-                if (amt == -1) {
-                    showMenu();
-                    choice = getChoice();
-                    continue;
-                }
-
-                savingsAccount[accChoice - 1].withdrawMoney(amt);
+                savingsAccount[accChoice - 1].withdrawMoneyFromSavings(amt);
             } else if (accChoice > savingsAccount.size()) {
-                while (amt <= 0 || amt > currentAccount[accChoice - savingsAccount.size() - 1].getMaxWithdrawableAmount()) {
-                    if (amt <= 0) {
-                        cout << "Invalid choice. Enter an amount greater 0, or enter -1 to go back to the menu: ";
-                    } else {
-                        cout << "Amount exceeded your maximum withdrawable amount. Enter an amount within it, or enter -1 to go back to the menu: ";
-                    }
-                    cin.clear();
-                    cin.ignore(10000, '\n');
-                    cin >> amt;
-                    if (amt == -1) {
-                        break;
-                    }
-                }
-                if (amt == -1) {
-                    showMenu();
-                    choice = getChoice();
-                    continue;
-                }
-
-                currentAccount[accChoice - savingsAccount.size() - 1].withdrawMoney(amt);
+                currentAccount[accChoice - savingsAccount.size() - 1].withdrawMoneyFromCurrent(amt);
             }
         } else if (choice == 5) {
             int accChoice;
@@ -296,18 +276,20 @@ int main() {
                 choice = getChoice();
                 continue;
             }
+
+            cout << '\n';
             
             if (accChoice <= savingsAccount.size()) {
                 cout << "Account type: " << savingsAccount[accChoice - 1].getAccountType() << '\n';
                 cout << "Holder name: " << savingsAccount[accChoice - 1].getName() << '\n';
-                cout << "Balance: " << round(savingsAccount[accChoice - 1].getBalance()) << '\n';
-                cout << "Interest Rate: " << round(savingsAccount[accChoice - 1].getInterestRate()) << '\n';
+                cout << "Balance: " << roundToTwo(savingsAccount[accChoice - 1].getBalance()) << '\n';
+                cout << "Interest Rate: " << roundToTwo(savingsAccount[accChoice - 1].getInterestRate()) << '\n';
                 cout << "Transactions: " << savingsAccount[accChoice - 1].getTransactions() << '\n';
             } else if (accChoice > savingsAccount.size()) {
                 cout << "Account type: " << currentAccount[accChoice - savingsAccount.size() - 1].getAccountType() << '\n';
                 cout << "Holder name: " << currentAccount[accChoice - savingsAccount.size() - 1].getName() << '\n';
-                cout << "Balance: " << round(currentAccount[accChoice - savingsAccount.size() - 1].getBalance()) << '\n';
-                cout << "Overdraft limit: " << round(currentAccount[accChoice - savingsAccount.size() - 1].getOverdraftLimit()) << '\n';
+                cout << "Balance: " << roundToTwo(currentAccount[accChoice - savingsAccount.size() - 1].getBalance()) << '\n';
+                cout << "Overdraft limit: " << roundToTwo(currentAccount[accChoice - savingsAccount.size() - 1].getOverdraftLimit()) << '\n';
                 cout << "Transactions: " << currentAccount[accChoice - savingsAccount.size() - 1].getTransactions() << '\n';
             }
         } else if (choice == 6) {
@@ -315,12 +297,12 @@ int main() {
             int index = 1;
 
             for (int i = 0; i < savingsAccount.size(); i++) {
-                cout << i + 1 << ". " << savingsAccount[i].getName() << " - " << savingsAccount[i].getAccountType() << " Account - " << "Balance: $" << round(savingsAccount[i].getBalance()) << '\n';
+                cout << i + 1 << ". " << savingsAccount[i].getName() << " - " << savingsAccount[i].getAccountType() << " Account - " << "Balance: $" << roundToTwo(savingsAccount[i].getBalance()) << '\n';
                 index++;
             }
 
             for (int i = 0; i < currentAccount.size(); i++) {
-                cout << savingsAccount.size() + i << ". " << currentAccount[i].getName() << " - " << currentAccount[i].getAccountType() << " Account - " << "Balance: $" << round(currentAccount[i].getBalance()) << '\n';
+                cout << savingsAccount.size() + i + 1 << ". " << currentAccount[i].getName() << " - " << currentAccount[i].getAccountType() << " Account - " << "Balance: $" << roundToTwo(currentAccount[i].getBalance()) << '\n';
                 index++;
             }
         }
