@@ -42,7 +42,7 @@ class BankAccount {
 
         void depositMoney(double amount) {
             while (amount <= 0) {
-                cout << "Invalid choice. Enter an amount greter than 0, or enter -1 to go back to the menu: ";
+                cout << "Invalid choice. Enter an amount greater than 0, or enter -1 to go back to the menu: ";
                 cin.clear();
                 cin.ignore(10000, '\n');
                 cin >> amount;
@@ -239,7 +239,7 @@ int main() {
                 continue;
             }
 
-            cout << "Enter deposit ammount: $";
+            cout << "Enter deposit amount: $";
             cin >> amt;
             
             if (accChoice <= savingsAccount.size()) {
@@ -296,17 +296,12 @@ int main() {
                 cout << "Transactions: " << currentAccount[accChoice - savingsAccount.size() - 1].getTransactions() << '\n';
             }
         } else if (choice == 6) {
-            int accChoice;
-            int index = 1;
-
             for (int i = 0; i < savingsAccount.size(); i++) {
                 cout << i + 1 << ". " << savingsAccount[i].getName() << " - " << savingsAccount[i].getAccountType() << " Account - " << "Balance: $" << roundToTwo(savingsAccount[i].getBalance()) << '\n';
-                index++;
             }
 
             for (int i = 0; i < currentAccount.size(); i++) {
                 cout << savingsAccount.size() + i + 1 << ". " << currentAccount[i].getName() << " - " << currentAccount[i].getAccountType() << " Account - " << "Balance: $" << roundToTwo(currentAccount[i].getBalance()) << '\n';
-                index++;
             }
         }
 
