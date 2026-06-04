@@ -117,7 +117,7 @@ class CurrentAccount : public BankAccount {
             return overdraftLimit;
         }
 
-        void withdrawMoneyFromCurrent(int amount) {
+        void withdrawMoneyFromCurrent(double amount) {
             while (amount <= 0 || amount > balance + overdraftLimit) {
                 if (amount <= 0) {
                     cout << "Invalid choice. Enter an amount greater 0, or enter -1 to go back to the menu: ";
@@ -270,7 +270,7 @@ int main() {
             }
         } else if (choice == 5) {
             int accChoice;
-            int index = 1;
+            int index = 0;
 
             traverseVector(accChoice, index, savingsAccount, currentAccount);
 
