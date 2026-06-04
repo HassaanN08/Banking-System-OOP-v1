@@ -131,6 +131,9 @@ class CurrentAccount : public BankAccount {
                     return;
                 }
             }
+
+            balance -= amount;
+            transactions++;
         }
 };
 
